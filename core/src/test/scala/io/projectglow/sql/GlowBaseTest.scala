@@ -36,6 +36,12 @@ abstract class GlowBaseTest
     with GlowGridTest
     with JenkinsTestPatience {
 
+  // Disable ANSI mode for Spark 4+ compatibility. Glow's semantics rely on silent
+  // null/overflow behavior for casts and array indexing.
+  override def sparkConf: SparkConf = {
+    super.sparkConf.set("spark.sql.ansi.enabled", "false")
+  }
+
   override def initializeSession(): Unit = {
     super.initializeSession()
     Glow.register(spark, newSession = false)

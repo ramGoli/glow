@@ -19,14 +19,14 @@ package org.apache.spark.sql
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.classic.{SparkSession => ClassicSparkSession}
+import org.apache.spark.sql.classic.{ExpressionColumnNode, SparkSession => ClassicSparkSession}
+import org.apache.spark.sql.internal.{Literal => LiteralNode, UnresolvedAttribute => UnresolvedAttributeNode}
 import org.apache.spark.sql.types.StructType
 
 // Spark 4 shim for SQLUtils methods that differ between Spark versions.
-// In Spark 4, SparkSession is an abstract class and internalCreateDataFrame/extensions
-// are only on the classic.SparkSession subclass.
-// Column in Spark 4 still has expr (private[sql]) and a constructor taking Expression,
-// accessible from this package.
+// In Spark 4, SparkSession is abstract (use classic.SparkSession).
+// Column no longer has .expr or Column(Expression) constructor.
+// Use ExpressionColumnNode to bridge between Expression and ColumnNode.
 private[sql] object SQLUtilsShim {
 
   def internalCreateDataFrame(
@@ -44,17 +44,29 @@ private[sql] object SQLUtilsShim {
   }
 
   def columnToExpr(col: Column): Expression = {
-    // In Spark 4, Column.expr is private. Use reflection to access it.
-    val method = classOf[Column].getDeclaredMethod("expr")
-    method.setAccessible(true)
-    method.invoke(col).asInstanceOf[Expression]
+    // In Spark 4, Column wraps a ColumnNode, not an Expression directly.
+    // Convert known ColumnNode types to their Catalyst Expression equivalents.
+    col.node match {
+      case ecn: ExpressionColumnNode => ecn.expression
+      case ua: UnresolvedAttributeNode =>
+        org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute(ua.nameParts)
+      case lit: LiteralNode =>
+        val catalystLit = lit.dataType match {
+          case Some(dt) =>
+            org.apache.spark.sql.catalyst.expressions.Literal.create(lit.value, dt)
+          case None =>
+            org.apache.spark.sql.catalyst.expressions.Literal(lit.value)
+        }
+        catalystLit
+      case other =>
+        throw new IllegalArgumentException(
+          s"Cannot extract Expression from Column with node type ${other.getClass.getName}.")
+    }
   }
 
   def exprToColumn(expr: Expression): Column = {
-    // In Spark 4, Column(Expression) constructor is private. Use the companion object's apply via reflection.
-    val companion = Column.getClass
-    val method = companion.getDeclaredMethod("apply", classOf[Expression])
-    method.setAccessible(true)
-    method.invoke(Column, expr).asInstanceOf[Column]
+    // In Spark 4, wrap the Expression in an ExpressionColumnNode (a ColumnNode
+    // that wraps an Expression), then create a Column from that node.
+    Column(ExpressionColumnNode(expr))
   }
 }
