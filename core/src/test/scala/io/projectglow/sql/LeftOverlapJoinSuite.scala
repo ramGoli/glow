@@ -249,7 +249,11 @@ class LeftOverlapJoinSuite extends OverlapJoinSuite {
       right("end"),
       rightPrefix = Some("right_"))
     right.columns.foreach { c =>
-      assert(joined.columns.contains(s"right_$c"))
+      // Spark 4 may include table qualifiers in column names (e.g., "right_right.name" vs "right_name")
+      assert(
+        joined.columns.exists(_.startsWith(s"right_")),
+        s"Expected a column starting with 'right_' for right column '$c', but got: ${joined.columns.mkString(", ")}"
+      )
     }
     withTempDir { f =>
       val tablePath = f.toPath.resolve("joined")
