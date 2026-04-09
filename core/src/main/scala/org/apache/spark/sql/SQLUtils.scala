@@ -24,6 +24,7 @@ import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.types._
 
 object SQLUtils {
+
   /** Extract the Catalyst Expression from a Column. Needed because Column.expr is private[sql] in Spark 4. */
   def columnToExpr(col: Column): Expression = SQLUtilsShim.columnToExpr(col)
 

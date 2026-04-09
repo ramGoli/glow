@@ -34,7 +34,9 @@ private[sql] object SQLUtilsShim {
       catalystRows: RDD[InternalRow],
       schema: StructType,
       isStreaming: Boolean): DataFrame = {
-    sess.asInstanceOf[ClassicSparkSession].internalCreateDataFrame(catalystRows, schema, isStreaming)
+    sess
+      .asInstanceOf[ClassicSparkSession]
+      .internalCreateDataFrame(catalystRows, schema, isStreaming)
   }
 
   def getSessionExtensions(session: SparkSession): SparkSessionExtensions = {
