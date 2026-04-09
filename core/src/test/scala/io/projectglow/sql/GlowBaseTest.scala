@@ -33,19 +33,13 @@ abstract class GlowBaseTest
     with GlowLogging
     with GlowTestData
     with TestUtils
+    with GlowGridTest
     with JenkinsTestPatience {
 
   override def initializeSession(): Unit = {
     super.initializeSession()
     Glow.register(spark, newSession = false)
     SparkSession.setActiveSession(spark)
-  }
-
-  protected def gridTest[A](testNamePrefix: String, testTags: Tag*)(params: Seq[A])(
-      testFun: A => Unit): Unit = {
-    for (param <- params) {
-      test(testNamePrefix + s" ($param)", testTags: _*)(testFun(param))
-    }
   }
 
   override def afterEach(): Unit = {
