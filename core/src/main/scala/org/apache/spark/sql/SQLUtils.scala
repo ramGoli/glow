@@ -20,9 +20,13 @@ import org.apache.spark.TaskContext
 import org.apache.spark.ml.linalg.{MatrixUDT, VectorUDT}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.types._
 
 object SQLUtils {
+  /** Extract the Catalyst Expression from a Column. Needed because Column.expr is private[sql] in Spark 4. */
+  def columnToExpr(col: Column): Expression = col.expr
+
   def verifyHasFields(schema: StructType, fields: Seq[StructField]): Unit = {
     fields.foreach { field =>
       val candidateFields = schema.fields.filter(_.name == field.name)
