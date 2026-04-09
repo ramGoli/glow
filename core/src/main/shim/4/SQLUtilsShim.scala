@@ -19,13 +19,14 @@ package org.apache.spark.sql
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.classic.{Column => ClassicColumn, SparkSession => ClassicSparkSession}
+import org.apache.spark.sql.classic.{SparkSession => ClassicSparkSession}
 import org.apache.spark.sql.types.StructType
 
 // Spark 4 shim for SQLUtils methods that differ between Spark versions.
 // In Spark 4, SparkSession is an abstract class and internalCreateDataFrame/extensions
-// are only on the classic.SparkSession subclass. Column.expr and Column(Expression)
-// constructor are also only on classic.Column.
+// are only on the classic.SparkSession subclass.
+// Column in Spark 4 still has expr (private[sql]) and a constructor taking Expression,
+// accessible from this package.
 private[sql] object SQLUtilsShim {
 
   def internalCreateDataFrame(
@@ -40,7 +41,18 @@ private[sql] object SQLUtilsShim {
     session.asInstanceOf[ClassicSparkSession].extensions
   }
 
-  def columnToExpr(col: Column): Expression = col.asInstanceOf[ClassicColumn].expr
+  def columnToExpr(col: Column): Expression = {
+    // In Spark 4, Column.expr is private. Use reflection to access it.
+    val method = classOf[Column].getDeclaredMethod("expr")
+    method.setAccessible(true)
+    method.invoke(col).asInstanceOf[Expression]
+  }
 
-  def exprToColumn(expr: Expression): Column = new ClassicColumn(expr)
+  def exprToColumn(expr: Expression): Column = {
+    // In Spark 4, Column(Expression) constructor is private. Use the companion object's apply via reflection.
+    val companion = Column.getClass
+    val method = companion.getDeclaredMethod("apply", classOf[Expression])
+    method.setAccessible(true)
+    method.invoke(Column, expr).asInstanceOf[Column]
+  }
 }
