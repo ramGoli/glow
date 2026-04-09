@@ -43,10 +43,10 @@ object SparkShim extends SparkShimBase {
       arguments,
       examples,
       note,
-      "",    // group
+      "", // group
       since,
-      "",    // deprecated
-      ""     // source
+      "", // deprecated
+      "" // source
     )
   }
 
