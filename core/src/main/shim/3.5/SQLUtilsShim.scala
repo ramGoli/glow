@@ -18,6 +18,7 @@ package org.apache.spark.sql
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.types.StructType
 
 // Spark 3.5 shim for SQLUtils methods that differ between Spark versions
@@ -34,4 +35,8 @@ private[sql] object SQLUtilsShim {
   def getSessionExtensions(session: SparkSession): SparkSessionExtensions = {
     session.extensions
   }
+
+  def columnToExpr(col: Column): Expression = col.expr
+
+  def exprToColumn(expr: Expression): Column = new Column(expr)
 }

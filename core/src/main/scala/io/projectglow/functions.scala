@@ -34,19 +34,19 @@ import io.projectglow.sql.expressions.ExpressionHelper
  */
 object functions {
   private def withExpr(expr: Expression): Column = {
-    new Column(ExpressionHelper.wrapAggregate(ExpressionHelper.rewrite(expr)))
+    SQLUtils.exprToColumn(ExpressionHelper.wrapAggregate(ExpressionHelper.rewrite(expr)))
   }
 
   private def createLambda(f: Column => Column) = {
     val x = UnresolvedNamedLambdaVariable(Seq("x"))
-    val function = SQLUtils.columnToExpr(f(new Column(x)))
+    val function = SQLUtils.columnToExpr(f(SQLUtils.exprToColumn(x)))
     LambdaFunction(function, Seq(x))
   }
 
   private def createLambda(f: (Column, Column) => Column) = {
     val x = UnresolvedNamedLambdaVariable(Seq("x"))
     val y = UnresolvedNamedLambdaVariable(Seq("y"))
-    val function = SQLUtils.columnToExpr(f(new Column(x), new Column(y)))
+    val function = SQLUtils.columnToExpr(f(SQLUtils.exprToColumn(x), SQLUtils.exprToColumn(y)))
     LambdaFunction(function, Seq(x, y))
   }
 

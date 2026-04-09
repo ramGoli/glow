@@ -18,12 +18,14 @@ package org.apache.spark.sql
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.classic.{SparkSession => ClassicSparkSession}
+import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.classic.{Column => ClassicColumn, SparkSession => ClassicSparkSession}
 import org.apache.spark.sql.types.StructType
 
 // Spark 4 shim for SQLUtils methods that differ between Spark versions.
 // In Spark 4, SparkSession is an abstract class and internalCreateDataFrame/extensions
-// are only on the classic.SparkSession subclass.
+// are only on the classic.SparkSession subclass. Column.expr and Column(Expression)
+// constructor are also only on classic.Column.
 private[sql] object SQLUtilsShim {
 
   def internalCreateDataFrame(
@@ -37,4 +39,8 @@ private[sql] object SQLUtilsShim {
   def getSessionExtensions(session: SparkSession): SparkSessionExtensions = {
     session.asInstanceOf[ClassicSparkSession].extensions
   }
+
+  def columnToExpr(col: Column): Expression = col.asInstanceOf[ClassicColumn].expr
+
+  def exprToColumn(expr: Expression): Column = new ClassicColumn(expr)
 }

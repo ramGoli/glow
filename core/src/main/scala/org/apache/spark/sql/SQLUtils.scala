@@ -25,7 +25,10 @@ import org.apache.spark.sql.types._
 
 object SQLUtils {
   /** Extract the Catalyst Expression from a Column. Needed because Column.expr is private[sql] in Spark 4. */
-  def columnToExpr(col: Column): Expression = col.expr
+  def columnToExpr(col: Column): Expression = SQLUtilsShim.columnToExpr(col)
+
+  /** Create a Column from a Catalyst Expression. Needed because Column(Expression) constructor was removed in Spark 4. */
+  def exprToColumn(expr: Expression): Column = SQLUtilsShim.exprToColumn(expr)
 
   def verifyHasFields(schema: StructType, fields: Seq[StructField]): Unit = {
     fields.foreach { field =>
