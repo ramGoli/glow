@@ -122,6 +122,12 @@ lazy val commonSettings = Seq(
   assembly / assemblyMergeStrategy := {
     case p if p.toLowerCase.contains("manifest.mf") =>
       MergeStrategy.discard
+    case p if p.toLowerCase.endsWith(".sf") || p.toLowerCase.endsWith(".dsa") || p.toLowerCase.endsWith(".rsa") =>
+      MergeStrategy.discard
+    case p if p.startsWith("com/fasterxml/jackson/") =>
+      MergeStrategy.discard
+    case p if p.startsWith("scala/") =>
+      MergeStrategy.discard
     case _ =>
       // Be permissive for other files
       MergeStrategy.first
