@@ -128,6 +128,8 @@ lazy val commonSettings = Seq(
       MergeStrategy.discard
     case p if p.startsWith("scala/") =>
       MergeStrategy.discard
+    case p if p.startsWith("META-INF/services/") =>
+      MergeStrategy.discard
     case _ =>
       // Be permissive for other files
       MergeStrategy.first
