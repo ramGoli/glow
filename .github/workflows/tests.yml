@@ -208,9 +208,6 @@ jobs:
         run: conda env update -n glow-spark4 -f python/spark-4-environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
 
-      - name: Install PySpark
-        run: pip install pyspark==4.1.0
-
       - name: Scala tests
         run: sbt core/test exit
 
