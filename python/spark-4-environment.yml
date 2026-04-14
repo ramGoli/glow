@@ -9,7 +9,7 @@ dependencies:
   - jinja2=3.1.2
   - jupyterlab
   - nptyping=2.5.0
-  - numpy=1.26.4
+  - numpy=1.23.5
   - opt_einsum>=3.2.0
   - pandas>=2.2.0
   - pip=22.3.1
