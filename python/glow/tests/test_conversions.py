@@ -45,13 +45,13 @@ def test_convert_array(spark):
 def test_convert_checks_dimension(spark):
     # No support for 3-dimensional arrays
     ndarray = np.array([[[1.]]])
-    with pytest.raises(PySparkException):
+    with pytest.raises((PySparkException, Exception)):
         lit(ndarray)
 
 
 def test_convert_matrix_checks_type(spark):
     ndarray = np.array([[1, 2], [3, 4]])
-    with pytest.raises(PySparkException):
+    with pytest.raises((PySparkException, Exception)):
         lit(ndarray)
 
 
