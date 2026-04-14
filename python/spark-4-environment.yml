@@ -8,8 +8,8 @@ dependencies:
   - click=8.0.4 # Docs notebook source generation
   - jinja2=3.1.2
   - jupyterlab
-  - nptyping
-  - numpy>=1.23.5,<2.0
+  - nptyping=2.5.0
+  - numpy=1.26.4
   - opt_einsum>=3.2.0
   - pandas>=2.2.0
   - pip=22.3.1
