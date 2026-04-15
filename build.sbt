@@ -126,7 +126,7 @@ lazy val commonSettings = Seq(
       MergeStrategy.discard
     case p if p.startsWith("com/fasterxml/jackson/") =>
       MergeStrategy.discard
-    case p if p.startsWith("META-INF/services/") =>
+    case "META-INF/services/java.net.spi.InetAddressResolverProvider" =>
       MergeStrategy.discard
     case _ =>
       // Be permissive for other files
