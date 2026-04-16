@@ -6,4 +6,10 @@ coverage:
         threshold: 2%  # the leniency in hitting the target
     patch:
       default:
-        target: 50%    # lower for patches since cross-version code (Spark 3/4 shims) is only covered by one CI job
+        target: 80%
+
+flags:
+  spark3:
+    carryforward: true
+  spark4:
+    carryforward: true
